@@ -1,4 +1,4 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.ui.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -7,13 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import it.jaschke.alexandria.R;
 
-public class About extends Fragment {
 
-    public About(){
-
-    }
-
+public class AboutFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -26,5 +23,4 @@ public class About extends Fragment {
         super.onAttach(activity);
         activity.setTitle(R.string.about);
     }
-
 }

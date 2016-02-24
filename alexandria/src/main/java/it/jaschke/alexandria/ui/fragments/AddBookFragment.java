@@ -1,7 +1,6 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.ui.fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -17,15 +16,25 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
+import java.util.regex.Pattern;
+
+import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
 
 
-public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddBookFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private String regex1013 = "^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$";
+    private String regex10 = "^(?:ISBN(?:-10)?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$)[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$";
+
+    private Pattern pattern1013 = Pattern.compile(regex1013);
+    private Pattern pattern10 = Pattern.compile(regex10);
+
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private EditText ean;
     private final int LOADER_ID = 1;
@@ -36,11 +45,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     private String mScanFormat = "Format:";
     private String mScanContents = "Contents:";
-
-
-
-    public AddBook(){
-    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -79,30 +83,26 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     return;
                 }
                 //Once we have an ISBN, start a book intent
-                Intent bookIntent = new Intent(getActivity(), BookService.class);
-                bookIntent.putExtra(BookService.EAN, ean);
-                bookIntent.setAction(BookService.FETCH_BOOK);
-                getActivity().startService(bookIntent);
-                AddBook.this.restartLoader();
+                if (pattern1013.matcher(ean).matches()){
+                    Intent bookIntent = new Intent(getActivity(), BookService.class);
+                    bookIntent.putExtra(BookService.EAN, ean);
+                    bookIntent.setAction(BookService.FETCH_BOOK);
+                    getActivity().startService(bookIntent);
+                    AddBookFragment.this.restartLoader();
+                }
             }
         });
 
         rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // This is the callback method that the system will invoke when your button is
-                // clicked. You might do this by launching another app or by including the
-                //functionality directly in this app.
-                // Hint: Use a Try/Catch block to handle the Intent dispatch gracefully, if you
-                // are using an external app.
-                //when you're done, remove the toast below.
-                Context context = getActivity();
-                CharSequence text = "This button should let you scan a book for its barcode!";
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
-
+                IntentIntegrator integrator = IntentIntegrator.forSupportFragment(AddBookFragment.this);
+                integrator.setDesiredBarcodeFormats(IntentIntegrator.PRODUCT_CODE_TYPES);
+                integrator.setPrompt("Scan a ISBN-13 code");
+                integrator.setCameraId(0);  // Use a specific camera of the device
+                integrator.setBeepEnabled(false);
+                integrator.setBarcodeImageEnabled(true);
+                integrator.initiateScan();
             }
         });
 
@@ -203,5 +203,21 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         activity.setTitle(R.string.scan);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if(result != null) {
+            if(result.getContents() == null) {
+                //TODO show other code message
+            } else {
+                String code = result.getContents();
+                if(code.length()==10 && !code.startsWith("978") && pattern10.matcher(code).matches()){
+                    code="978"+code;
+                }
+                ean.setText(code);
+            }
+        }
     }
 }

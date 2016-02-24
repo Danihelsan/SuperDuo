@@ -1,4 +1,4 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.ui.fragments;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,12 +18,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
+import it.jaschke.alexandria.ui.activities.MainActivity;
 
 
-public class BookDetail extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class BookDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EAN_KEY = "EAN";
     private final int LOADER_ID = 10;
@@ -31,9 +33,6 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     private String ean;
     private String bookTitle;
     private ShareActionProvider shareActionProvider;
-
-    public BookDetail(){
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +46,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            ean = arguments.getString(BookDetail.EAN_KEY);
+            ean = arguments.getString(BookDetailFragment.EAN_KEY);
             getLoaderManager().restartLoader(LOADER_ID, null, this);
         }
 

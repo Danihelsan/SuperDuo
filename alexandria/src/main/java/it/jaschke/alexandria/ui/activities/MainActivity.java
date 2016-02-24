@@ -1,4 +1,4 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.ui.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +17,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import it.jaschke.alexandria.ui.fragments.AboutFragment;
+import it.jaschke.alexandria.ui.fragments.AddBookFragment;
+import it.jaschke.alexandria.ui.fragments.BookDetailFragment;
+import it.jaschke.alexandria.ui.fragments.ListOfBooksFragment;
+import it.jaschke.alexandria.ui.fragments.NavigationDrawerFragment;
+import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.api.Callback;
 
 
@@ -69,13 +75,13 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         switch (position){
             default:
             case 0:
-                nextFragment = new ListOfBooks();
+                nextFragment = new ListOfBooksFragment();
                 break;
             case 1:
-                nextFragment = new AddBook();
+                nextFragment = new AddBookFragment();
                 break;
             case 2:
-                nextFragment = new About();
+                nextFragment = new AboutFragment();
                 break;
 
         }
@@ -135,9 +141,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     @Override
     public void onItemSelected(String ean) {
         Bundle args = new Bundle();
-        args.putString(BookDetail.EAN_KEY, ean);
+        args.putString(BookDetailFragment.EAN_KEY, ean);
 
-        BookDetail fragment = new BookDetail();
+        BookDetailFragment fragment = new BookDetailFragment();
         fragment.setArguments(args);
 
         int id = R.id.container;

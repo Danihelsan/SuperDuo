@@ -19,9 +19,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.ui.activities.MainActivity;
+import it.jaschke.alexandria.utils.ConnectivityHelper;
 
 
 /**
@@ -47,8 +48,14 @@ public class BookService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (FETCH_BOOK.equals(action)) {
-                final String ean = intent.getStringExtra(EAN);
-                fetchBook(ean);
+                if (ConnectivityHelper.get().isConnected()) {
+                    final String ean = intent.getStringExtra(EAN);
+                    fetchBook(ean);
+                } else {
+                    Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
+                    messageIntent.putExtra(MainActivity.MESSAGE_KEY, getResources().getString(R.string.connection_unavailable));
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+                }
             } else if (DELETE_BOOK.equals(action)) {
                 final String ean = intent.getStringExtra(EAN);
                 deleteBook(ean);
