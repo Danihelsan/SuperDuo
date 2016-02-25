@@ -19,6 +19,12 @@ public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
     }
 
     protected Bitmap doInBackground(String... urls) {
+        /*
+        * Avoid using this AsyncTask due to the memory leak issues related with retaining instances
+        * (related orientation changes and particular behaviours)
+        * Also it is better imo to use already developed libraries focused on this jobs (like Glide and Picasso)
+        * */
+
         String urlDisplay = urls[0];
         Bitmap bookCover = null;
         try {

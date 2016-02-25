@@ -56,18 +56,19 @@ public class ConnectivityHelper {
         getConnectionStatus(context);
     }
 
-    public ConnectionStatus getConnectionStatus(Context context) {
+    public void getConnectionStatus(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
 
         if (activeNetwork != null) {
-
             if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI){
-                    return ConnectionStatus.WIFI;
-            } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE)
-                    return ConnectionStatus.MOBILE;
+                connectionStatus = ConnectionStatus.WIFI;
+            } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE){
+                connectionStatus = ConnectionStatus.MOBILE;
             }
-        return ConnectionStatus.NOT_CONNECTED;
+        } else {
+            connectionStatus = ConnectionStatus.NOT_CONNECTED;
+        }
     }
 
     public boolean isConnected(){

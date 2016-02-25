@@ -2,7 +2,6 @@ package it.jaschke.alexandria.ui.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,7 @@ import android.view.ViewGroup;
 import it.jaschke.alexandria.R;
 
 
-public class AboutFragment extends Fragment {
+public class AboutFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

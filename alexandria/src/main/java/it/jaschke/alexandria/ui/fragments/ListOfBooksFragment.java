@@ -3,7 +3,6 @@ package it.jaschke.alexandria.ui.fragments;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -20,7 +19,7 @@ import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
 
-public class ListOfBooksFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ListOfBooksFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private BookListAdapter bookListAdapter;
     private ListView bookList;

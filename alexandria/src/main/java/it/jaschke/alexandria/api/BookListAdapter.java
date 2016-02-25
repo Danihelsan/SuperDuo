@@ -4,15 +4,19 @@ package it.jaschke.alexandria.api;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
-import it.jaschke.alexandria.services.DownloadImage;
 
 /**
  * Created by saj on 11/01/15.
@@ -21,14 +25,17 @@ public class BookListAdapter extends CursorAdapter {
 
 
     public static class ViewHolder {
-        public final ImageView bookCover;
-        public final TextView bookTitle;
-        public final TextView bookSubTitle;
+        @Bind(R.id.fullBookCover)
+        public ImageView bookCover;
+
+        @Bind(R.id.listBookTitle)
+        public TextView bookTitle;
+
+        @Bind(R.id.listBookSubTitle)
+        public TextView bookSubTitle;
 
         public ViewHolder(View view) {
-            bookCover = (ImageView) view.findViewById(R.id.fullBookCover);
-            bookTitle = (TextView) view.findViewById(R.id.listBookTitle);
-            bookSubTitle = (TextView) view.findViewById(R.id.listBookSubTitle);
+            ButterKnife.bind(this,view);
         }
     }
 
@@ -42,13 +49,19 @@ public class BookListAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         String imgUrl = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        new DownloadImage(viewHolder.bookCover).execute(imgUrl);
+        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
+            Glide.with(context).load(imgUrl).into(viewHolder.bookCover);
+        }
 
         String bookTitle = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        viewHolder.bookTitle.setText(bookTitle);
+        if (bookTitle != null) {
+            viewHolder.bookTitle.setText(bookTitle);
+        }
 
         String bookSubTitle = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        viewHolder.bookSubTitle.setText(bookSubTitle);
+        if (bookSubTitle != null) {
+            viewHolder.bookSubTitle.setText(bookSubTitle);
+        }
     }
 
     @Override

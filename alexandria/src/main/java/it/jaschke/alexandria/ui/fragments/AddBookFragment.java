@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.text.Editable;
@@ -17,34 +16,29 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.regex.Pattern;
 
+import butterknife.ButterKnife;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
-import it.jaschke.alexandria.services.DownloadImage;
 
 
-public class AddBookFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddBookFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private String regex1013 = "^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$";
     private String regex10 = "^(?:ISBN(?:-10)?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$)[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$";
 
     private Pattern pattern1013 = Pattern.compile(regex1013);
     private Pattern pattern10 = Pattern.compile(regex10);
 
-    private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private EditText ean;
     private final int LOADER_ID = 1;
     private View rootView;
     private final String EAN_CONTENT="eanContent";
-    private static final String SCAN_FORMAT = "scanFormat";
-    private static final String SCAN_CONTENTS = "scanContents";
-
-    private String mScanFormat = "Format:";
-    private String mScanContents = "Contents:";
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -161,27 +155,34 @@ public class AddBookFragment extends Fragment implements LoaderManager.LoaderCal
             return;
         }
 
-        String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
-
-        String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
+        loadDetailField(data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE)), (TextView) ButterKnife.findById(rootView,R.id.bookTitle));
+        loadDetailField(data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE)), (TextView) ButterKnife.findById(rootView,R.id.bookSubTitle));
 
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
-        ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
-        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
-            rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+        TextView textAuthors = ButterKnife.findById(rootView,R.id.authors);
+        if (authors!=null){
+            String[] authorsArr = authors.split(",");
+            if (authorsArr!=null && authorsArr.length>0){
+                textAuthors.setLines(authorsArr.length);
+            }
+            textAuthors.setText(authors.replace(",","\n"));
+        } else{
+            textAuthors.setVisibility(View.INVISIBLE);
         }
 
-        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
+        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+        ImageView fullBookCover = ButterKnife.findById(rootView,R.id.bookCover);
+        if(imgUrl!=null && Patterns.WEB_URL.matcher(imgUrl).matches()){
+            Glide.with(getActivity()).load(imgUrl).into(fullBookCover);
+            rootView.findViewById(R.id.fullBookCover).setVisibility(View.VISIBLE);
+        } else{
+            fullBookCover.setVisibility(View.INVISIBLE);
+        }
 
-        rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
-        rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
+        loadDetailField(data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY)), (TextView) ButterKnife.findById(rootView,R.id.categories));
+
+        ButterKnife.findById(rootView,R.id.save_button).setVisibility(View.VISIBLE);
+        ButterKnife.findById(rootView,R.id.delete_button).setVisibility(View.VISIBLE);
     }
 
     @Override

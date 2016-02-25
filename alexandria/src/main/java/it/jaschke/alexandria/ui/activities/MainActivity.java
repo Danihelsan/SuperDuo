@@ -7,23 +7,22 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
+import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.ui.fragments.AboutFragment;
 import it.jaschke.alexandria.ui.fragments.AddBookFragment;
 import it.jaschke.alexandria.ui.fragments.BookDetailFragment;
 import it.jaschke.alexandria.ui.fragments.ListOfBooksFragment;
 import it.jaschke.alexandria.ui.fragments.NavigationDrawerFragment;
-import it.jaschke.alexandria.R;
-import it.jaschke.alexandria.api.Callback;
+import it.jaschke.alexandria.utils.ConnectivityHelper;
 
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, Callback {
@@ -38,7 +37,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      */
     private CharSequence title;
     public static boolean IS_TABLET = false;
-    private BroadcastReceiver messageReciever;
+    private BroadcastReceiver messageReceiver;
 
     public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
     public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
@@ -53,9 +52,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             setContentView(R.layout.activity_main);
         }
 
-        messageReciever = new MessageReciever();
+        messageReceiver = new MessageReciever();
         IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
-        LocalBroadcastManager.getInstance(this).registerReceiver(messageReciever,filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver,filter);
 
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -67,9 +66,19 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    protected void onResume() {
+        super.onResume();
+        ConnectivityHelper.get().registerReceiver(this);
+    }
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
+    @Override
+    protected void onPause() {
+        ConnectivityHelper.get().unregisterReceiver(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onNavigationDrawerItemSelected(int position) {
         Fragment nextFragment;
 
         switch (position){
@@ -86,7 +95,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
         }
 
-        fragmentManager.beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, nextFragment)
                 .addToBackStack((String) title)
                 .commit();
@@ -134,7 +143,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     @Override
     protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReciever);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver);
         super.onDestroy();
     }
 
@@ -166,23 +175,23 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         }
     }
 
-    public void goBack(View view){
-        getSupportFragmentManager().popBackStack();
-    }
-
     private boolean isTablet() {
         return (getApplicationContext().getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
-    @Override
-    public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount()<2){
-            finish();
-        }
-        super.onBackPressed();
-    }
+    /*
+     * Avoid overwriting default behavior from the onBackPressed method
+     */
+//    @Override
+//    public void onBackPressed() {
+//
+//        if(getSupportFragmentManager().getBackStackEntryCount()<2){
+//            finish();
+//        }
+//        super.onBackPressed();
+//    }
 
 
 }
