@@ -86,6 +86,9 @@ public class BookDetailFragment extends BaseFragment implements LoaderManager.Lo
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
+        if (!this.isAdded()){
+            return;
+        }
         if (!data.moveToFirst()) {
             return;
         }
@@ -134,6 +137,9 @@ public class BookDetailFragment extends BaseFragment implements LoaderManager.Lo
     }
 
     private void loadShareProvider(String title) {
+        if (shareActionProvider==null){
+            return;
+        }
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
         shareIntent.setType("text/plain");

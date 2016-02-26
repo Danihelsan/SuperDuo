@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -94,11 +95,25 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 break;
 
         }
+        /**
+         * Emptying the stack (for the case where the user is viewing the Detail and selects another item from the Navigation Drawer
+         */
+        for(int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); ++i) {
+            getSupportFragmentManager().popBackStack();
+        }
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, nextFragment)
-                .addToBackStack((String) title)
-                .commit();
+        /**
+         * Removing the addBackToStack to avoid bug from the Back button Pressed
+         */
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+
+        transaction.replace(R.id.container, nextFragment);
+
+        if(findViewById(R.id.right_container) != null && getSupportFragmentManager().findFragmentByTag(BookDetailFragment.class.getSimpleName())!=null){
+            transaction.remove(getSupportFragmentManager().findFragmentByTag(BookDetailFragment.class.getSimpleName()));
+        }
+        transaction.commit();
     }
 
     public void setTitle(int titleId) {
@@ -159,10 +174,17 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         if(findViewById(R.id.right_container) != null){
             id = R.id.right_container;
         }
-        getSupportFragmentManager().beginTransaction()
-                .replace(id, fragment)
-                .addToBackStack("Book Detail")
-                .commit();
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(id, fragment,BookDetailFragment.class.getSimpleName());
+        /**
+         * Only stack if the app only contains one fragment in the screen
+         */
+        if (id == R.id.container){
+            transaction.addToBackStack("Book Detail");
+        }
+
+        transaction.commit();
 
     }
 

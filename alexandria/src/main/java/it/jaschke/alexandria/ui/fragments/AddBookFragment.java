@@ -151,6 +151,10 @@ public class AddBookFragment extends BaseFragment implements LoaderManager.Loade
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
+        if (!this.isAdded()){
+            return;
+        }
+
         if (!data.moveToFirst()) {
             return;
         }
@@ -174,7 +178,7 @@ public class AddBookFragment extends BaseFragment implements LoaderManager.Loade
         ImageView fullBookCover = ButterKnife.findById(rootView,R.id.bookCover);
         if(imgUrl!=null && Patterns.WEB_URL.matcher(imgUrl).matches()){
             Glide.with(getActivity()).load(imgUrl).into(fullBookCover);
-            rootView.findViewById(R.id.fullBookCover).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
         } else{
             fullBookCover.setVisibility(View.INVISIBLE);
         }

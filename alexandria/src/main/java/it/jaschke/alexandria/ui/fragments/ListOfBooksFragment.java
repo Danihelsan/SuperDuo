@@ -109,6 +109,9 @@ public class ListOfBooksFragment extends BaseFragment implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (!this.isAdded()){
+            return;
+        }
         bookListAdapter.swapCursor(data);
         if (position != ListView.INVALID_POSITION) {
             bookList.smoothScrollToPosition(position);
