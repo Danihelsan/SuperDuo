@@ -16,6 +16,7 @@ public class ScoresProvider extends ContentProvider {
     private static final int MATCHES_WITH_LEAGUE = 101;
     private static final int MATCHES_WITH_ID = 102;
     private static final int MATCHES_WITH_DATE = 103;
+    private static final int MATCHES_FOR_WIDGET = 104;
     private UriMatcher muriMatcher = buildUriMatcher();
     private static final String SCORES_BY_LEAGUE = DatabaseContract.scores_table.LEAGUE_COL + " = ?";
     private static final String SCORES_BY_DATE = DatabaseContract.scores_table.DATE_COL + " LIKE ?";
@@ -29,6 +30,8 @@ public class ScoresProvider extends ContentProvider {
         matcher.addURI(authority, "league", MATCHES_WITH_LEAGUE);
         matcher.addURI(authority, "id", MATCHES_WITH_ID);
         matcher.addURI(authority, "date", MATCHES_WITH_DATE);
+        matcher.addURI(authority, "todayResults", MATCHES_FOR_WIDGET);
+
         return matcher;
     }
 
@@ -43,6 +46,8 @@ public class ScoresProvider extends ContentProvider {
                 return MATCHES_WITH_ID;
             } else if (link.contentEquals(DatabaseContract.scores_table.buildScoreWithLeague().toString())) {
                 return MATCHES_WITH_LEAGUE;
+            } else if (link.contentEquals(DatabaseContract.scores_table.buildScoreForWidget().toString())) {
+                return MATCHES_FOR_WIDGET;
             }
         }
         return -1;
@@ -71,6 +76,8 @@ public class ScoresProvider extends ContentProvider {
                 return DatabaseContract.scores_table.CONTENT_ITEM_TYPE;
             case MATCHES_WITH_DATE:
                 return DatabaseContract.scores_table.CONTENT_TYPE;
+            case MATCHES_FOR_WIDGET:
+                return DatabaseContract.scores_table.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri :" + uri);
         }
@@ -93,6 +100,9 @@ public class ScoresProvider extends ContentProvider {
             case MATCHES_WITH_LEAGUE:
                 retCursor = mOpenHelper.getReadableDatabase().query(DatabaseContract.SCORES_TABLE, projection, SCORES_BY_LEAGUE, selectionArgs, null, null, sortOrder);
                 break;
+            case MATCHES_FOR_WIDGET:
+                retCursor = mOpenHelper.getReadableDatabase().query(DatabaseContract.SCORES_TABLE, projection, SCORES_BY_DATE, selectionArgs, null, null, DatabaseContract.scores_table.DATE_COL + " DESC");
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri" + uri);
         }
@@ -112,12 +122,12 @@ public class ScoresProvider extends ContentProvider {
         switch (match_uri(uri)) {
             case MATCHES:
                 db.beginTransaction();
-                int returncount = 0;
+                int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insertWithOnConflict(DatabaseContract.SCORES_TABLE, null, value, SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1) {
-                            returncount++;
+                            returnCount++;
                         }
                     }
                     db.setTransactionSuccessful();
@@ -125,7 +135,7 @@ public class ScoresProvider extends ContentProvider {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
-                return returncount;
+                return returnCount;
             default:
                 return super.bulkInsert(uri, values);
         }

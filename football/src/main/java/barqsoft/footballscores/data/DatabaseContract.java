@@ -37,6 +37,10 @@ public class DatabaseContract {
         public static Uri buildScoreWithDate() {
             return BASE_CONTENT_URI.buildUpon().appendPath("date").build();
         }
+
+        public static Uri buildScoreForWidget() {
+            return BASE_CONTENT_URI.buildUpon().appendPath("todayResults").build();
+        }
     }
 
     //URI data

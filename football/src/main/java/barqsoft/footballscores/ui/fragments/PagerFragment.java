@@ -22,28 +22,29 @@ import barqsoft.footballscores.ui.activities.MainActivity;
  * Created by yehya khaled on 2/27/2015.
  */
 public class PagerFragment extends Fragment {
+    private final String DATE_FORMAT = "yyyy-MM-dd";
+    private final String DAY_FORMAT = "EEEE";
     public static final int NUM_PAGES = 5;
-    public ViewPager mPagerHandler;
-    private myPageAdapter mPagerAdapter;
+    public ViewPager pager;
+    private ScorePageAdapter adapter;
     private MainScreenFragment[] viewFragments = new MainScreenFragment[5];
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.pager_fragment, container, false);
-        mPagerHandler = (ViewPager) rootView.findViewById(R.id.pager);
-        mPagerAdapter = new myPageAdapter(getChildFragmentManager());
+        pager = (ViewPager) rootView.findViewById(R.id.pager);
+        adapter = new ScorePageAdapter(getChildFragmentManager());
         for (int i = 0; i < NUM_PAGES; i++) {
-            Date fragmentdate = new Date(System.currentTimeMillis() + ((i - 2) * 86400000));
-            SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
-            viewFragments[i] = new MainScreenFragment();
-            viewFragments[i].setFragmentDate(mformat.format(fragmentdate));
+            Date date = new Date(System.currentTimeMillis() + ((i - 2) * 86400000));
+            SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+            viewFragments[i] = MainScreenFragment.newInstance(formatter.format(date));
         }
-        mPagerHandler.setAdapter(mPagerAdapter);
-        mPagerHandler.setCurrentItem(MainActivity.current_fragment);
+        pager.setAdapter(adapter);
+        pager.setCurrentItem(MainActivity.current_fragment);
         return rootView;
     }
 
-    private class myPageAdapter extends FragmentStatePagerAdapter {
+    private class ScorePageAdapter extends FragmentStatePagerAdapter {
         @Override
         public Fragment getItem(int i) {
             return viewFragments[i];
@@ -54,7 +55,7 @@ public class PagerFragment extends Fragment {
             return NUM_PAGES;
         }
 
-        public myPageAdapter(FragmentManager fm) {
+        public ScorePageAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -82,7 +83,7 @@ public class PagerFragment extends Fragment {
                 Time time = new Time();
                 time.setToNow();
                 // Otherwise, the format is just the day of the week (e.g "Wednesday".
-                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+                SimpleDateFormat dayFormat = new SimpleDateFormat(DAY_FORMAT);
                 return dayFormat.format(dateInMillis);
             }
         }

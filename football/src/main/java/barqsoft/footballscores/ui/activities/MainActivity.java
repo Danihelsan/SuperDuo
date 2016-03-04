@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt("Pager_Current", my_main.mPagerHandler.getCurrentItem());
+        outState.putInt("Pager_Current", my_main.pager.getCurrentItem());
         outState.putInt("Selected_match", selected_match_id);
         getSupportFragmentManager().putFragment(outState, "my_main", my_main);
         super.onSaveInstanceState(outState);
