@@ -53,6 +53,8 @@ public class ScoresAdapter extends CursorAdapter {
         holder.match_id = cursor.getDouble(COL_ID);
         holder.home_crest.setImageResource(Utils.getTeamCrestByTeamName(cursor.getString(COL_HOME)));
         holder.away_crest.setImageResource(Utils.getTeamCrestByTeamName(cursor.getString(COL_AWAY)));
+        holder.home_crest.setContentDescription(cursor.getString(COL_HOME));
+        holder.away_crest.setContentDescription(cursor.getString(COL_AWAY));
 
         LayoutInflater vi = (LayoutInflater) context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = vi.inflate(R.layout.detail_fragment, null);
@@ -73,12 +75,17 @@ public class ScoresAdapter extends CursorAdapter {
             league.setText(Utils.getLeague(cursor.getInt(COL_LEAGUE)));
 
             Button share_button = (Button) v.findViewById(R.id.share_button);
-            share_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    context.startActivity(createShareForecastIntent(holder.home_name.getText() + " " + holder.score.getText() + " " + holder.away_name.getText() + " "));
-                }
-            });
+            if (cursor.getInt(COL_HOME_GOALS)>=0 && cursor.getInt(COL_HOME_GOALS)>=0){
+                share_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        context.startActivity(createShareForecastIntent(holder.home_name.getText() + " " + holder.score.getText() + " " + holder.away_name.getText() + " "));
+                    }
+                });
+                share_button.setContentDescription(context.getString(R.string.shareMatchCD,cursor.getString(COL_HOME),cursor.getString(COL_AWAY)));
+            } else{
+                share_button.setVisibility(View.GONE);
+            }
         } else {
             container.removeAllViews();
         }
