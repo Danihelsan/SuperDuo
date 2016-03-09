@@ -129,11 +129,6 @@ public class BookDetailFragment extends BaseFragment implements LoaderManager.Lo
         }
 
         loadDetailField(data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY)), (TextView) ButterKnife.findById(rootView,R.id.categories));
-
-        if(rootView.findViewById(R.id.right_container)!=null){
-            rootView.findViewById(R.id.backButton).setVisibility(View.INVISIBLE);
-        }
-
     }
 
     private void loadShareProvider(String title) {
